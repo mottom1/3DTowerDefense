@@ -8,7 +8,7 @@ onready var cambase = $CamBase
 #Movement Vars
 const MovmentSpeedUp = 4
 const AirMovementSpeedUp = .5
-var Friction = 4
+var Friction = 2
 var MaxPlayerSpeed = 20
 var PlayerControledMVector = Vector3()
 var wall:bool = false

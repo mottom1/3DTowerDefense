@@ -1,11 +1,13 @@
-extends KinematicBody
+extends RigidBody
 
 var Health = 100
 
 func _ready():
-	pass # Replace with function body.
+	pass
 
 
 func _process(delta):
 	if Health <= 0:
-		queue_free()
+		axis_lock_angular_x = false
+		axis_lock_angular_y = false
+		axis_lock_angular_z = false
