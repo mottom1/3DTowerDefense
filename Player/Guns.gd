@@ -35,7 +35,7 @@ func FireAR():
 				if target.is_in_group("Enimes"):
 					if target.is_in_group("Enimes"):
 						target.Health -= damadge
-						print(str(target.Health))
+						
 		ARAnimation.play("Shoot")
 	
 	

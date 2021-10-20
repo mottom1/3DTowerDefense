@@ -1,16 +1,22 @@
 extends KinematicBody
 
 #CamVars
-var LookSensitivity = 1
+var LookSensitivity = .7
 const CamClap = 90
 onready var cambase = $CamBase
 
 #Movement Vars
 const MovmentSpeedUp = 4
-const AirMovementSpeedUp = .5
-var Friction = 2
-var MaxPlayerSpeed = 20
+const AirMovementSpeedUp = .1
+var Friction = 2.5
+
+var MaxPlayerSpeed = 10
+var OGMaxPlayerSpeed = MaxPlayerSpeed
+var RealMaxPlayerSpeed = 22
+var MaxSpeedUp = .1
+var MaxSpeedDown = MaxSpeedUp
 var PlayerControledMVector = Vector3()
+var EnviermentContrlVector : Vector3
 var wall:bool = false
 
 #VerticalVars
@@ -19,25 +25,36 @@ const MaxJumpPower = 30
 var curentJumpPower = 0
 const gravity = 2
 var YVelo = 2
+var YVeloCap = 80
 var Celing:bool = false
 var grounded:bool = false 
 var CanJump:bool = true
-
+# Shop Vars
+var Coins = 0
 #GunVars
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+
+
+#Mouse Movment
 func _input(event):
 	if event is InputEventMouseMotion:
 		cambase.rotation_degrees.x -= event.relative.y * LookSensitivity
 		cambase.rotation_degrees.x = clamp(cambase.rotation_degrees.x, -CamClap, CamClap)
 		rotation_degrees.y -= event.relative.x * LookSensitivity
+#	if event is InputEventJoypadMotion:
+	cambase.rotation_degrees.y += (Input.get_action_strength("ScreenRotateL")- Input.get_action_strength("ScreenRotateR") )*LookSensitivity
+	cambase.rotation_degrees.x += (Input.get_action_strength("ScreenRotateUp")- Input.get_action_strength("ScreenRotateDown"))*LookSensitivity
+	cambase.rotation_degrees.x = clamp(cambase.rotation_degrees.x, -CamClap, CamClap)
 
 func Move():
 	
 	if Input.is_action_pressed("Forward"):
 		if grounded:
 			PlayerControledMVector.z += -MovmentSpeedUp-Friction
+			
+
 		else:
 			PlayerControledMVector.z += -AirMovementSpeedUp
 	else: pass
@@ -62,10 +79,27 @@ func Move():
 		else:
 			PlayerControledMVector.x += -AirMovementSpeedUp
 	else: pass
-
 	
 	
+	if MaxPlayerSpeed >= RealMaxPlayerSpeed:
+		MaxPlayerSpeed = RealMaxPlayerSpeed
+		
+	if Input.is_action_just_pressed("Backwards") or Input.is_action_pressed("Forward") or Input.is_action_pressed("Right") or Input.is_action_pressed("Left"):
+		if !wall:
+			MaxPlayerSpeed += MaxSpeedUp +MaxSpeedDown
+		else: MaxPlayerSpeed = OGMaxPlayerSpeed
+		
+	if MaxPlayerSpeed > OGMaxPlayerSpeed:
+		MaxPlayerSpeed -= MaxSpeedDown
+		
+		if PlayerControledMVector != Vector3(0,0,0):
+			pass
+		else:
+			MaxPlayerSpeed = OGMaxPlayerSpeed
 	
+	if wall:
+		EnviermentContrlVector.x = 0
+		EnviermentContrlVector.z = 0
 	
 #	SlowsPlayerControledMVector
 	if PlayerControledMVector.z != 0:
@@ -97,35 +131,35 @@ func Move():
 				PlayerControledMVector.x = MaxPlayerSpeed
 
 #	SlowsDownMVector
-	if GlobalVars.playervars.EnviermentalMovment.z != 0:
-		if GlobalVars.playervars.EnviermentalMovment.z < 0:
-			GlobalVars.playervars.EnviermentalMovment.z +=Friction
-			if GlobalVars.playervars.EnviermentalMovment.z > 0:
-				GlobalVars.playervars.EnviermentalMovment.z = 0
+	if EnviermentContrlVector.z != 0:
+		if EnviermentContrlVector.z < 0:
+			EnviermentContrlVector.z +=Friction
+			if EnviermentContrlVector.z > 0:
+				EnviermentContrlVector.z = 0
 		else:
-			GlobalVars.playervars.EnviermentalMovment.z -=Friction
-			if GlobalVars.playervars.EnviermentalMovment.z < 0:
-				GlobalVars.playervars.EnviermentalMovment.z = 0
-	if GlobalVars.playervars.EnviermentalMovment.x != 0:
-		if GlobalVars.playervars.EnviermentalMovment.x < 0:
-			GlobalVars.playervars.EnviermentalMovment.x +=Friction
-			if GlobalVars.playervars.EnviermentalMovment.x > 0:
-				GlobalVars.playervars.EnviermentalMovment.x = 0
+			EnviermentContrlVector.z -=Friction
+			if EnviermentContrlVector.z < 0:
+				EnviermentContrlVector.z = 0
+	if EnviermentContrlVector.x != 0:
+		if EnviermentContrlVector.x < 0:
+			EnviermentContrlVector.x +=Friction
+			if EnviermentContrlVector.x > 0:
+				EnviermentContrlVector.x = 0
 		else:
-			GlobalVars.playervars.EnviermentalMovment.x -=Friction
-			if GlobalVars.playervars.EnviermentalMovment.x < 0:
-				GlobalVars.playervars.EnviermentalMovment.x = 0
+			EnviermentContrlVector.x -=Friction
+			if EnviermentContrlVector.x < 0:
+				EnviermentContrlVector.x = 0
 
 
-	if GlobalVars.playervars.EnviermentalMovment.y != 0:
-		if GlobalVars.playervars.EnviermentalMovment.y < 0:
-			GlobalVars.playervars.EnviermentalMovment.y +=gravity
-			if GlobalVars.playervars.EnviermentalMovment.y > 0:
-				GlobalVars.playervars.EnviermentalMovment.y = 0
+	if EnviermentContrlVector.y != 0:
+		if EnviermentContrlVector.y < 0:
+			EnviermentContrlVector.y +=gravity
+			if EnviermentContrlVector.y > 0:
+				EnviermentContrlVector.y = 0
 		else:
-			GlobalVars.playervars.EnviermentalMovment.y -=gravity
-			if GlobalVars.playervars.EnviermentalMovment.y < 0:
-				GlobalVars.playervars.EnviermentalMovment.y = 0
+			EnviermentContrlVector.y -=gravity
+			if EnviermentContrlVector.y < 0:
+				EnviermentContrlVector.y = 0
 
 
 func VerticalMovment():
@@ -136,8 +170,12 @@ func VerticalMovment():
 	else:
 		YVelo -= gravity
 	if Celing:
-		YVelo = 0.1
+		YVelo = -0.4
 		CanJump = false
+		EnviermentContrlVector.y = EnviermentContrlVector.y *2/3
+	
+	if YVelo <-YVeloCap:
+		YVelo = -YVeloCap
 	
 	if Input.is_action_pressed("Jump") and CanJump:
 		YVelo += JumpPower +gravity
@@ -148,19 +186,24 @@ func VerticalMovment():
 	
 	if YVelo > MaxJumpPower:
 		CanJump = false
+		
 
 
 
 func _physics_process(_delta):
 	Move()
 	VerticalMovment()
-	move_and_slide(GlobalVars.playervars.EnviermentalMovment+ PlayerControledMVector.rotated(Vector3(0,1,0), rotation.y) + Vector3(0,YVelo,0), Vector3.UP)
+	move_and_slide(EnviermentContrlVector+ PlayerControledMVector.rotated(Vector3(0,1,0), rotation.y) + Vector3(0,YVelo,0), Vector3.UP)
+	var Menue = false
 	if Input.is_action_just_pressed("menue"):
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		if !Menue:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE) 
+			Menue = true
+		elif Menue: 
+			Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+			Menue = !Menue
 	
 	Celing = is_on_ceiling()
 	grounded = is_on_floor()
 	wall = is_on_wall()
-
-
-
+	

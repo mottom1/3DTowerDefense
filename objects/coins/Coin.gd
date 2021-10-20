@@ -1,5 +1,5 @@
 extends Area
 
 func _on_Area_body_entered(body):
-	GlobalVars.ShopVars.Money += 1
+	body.Coins += 1
 	queue_free()
