@@ -193,7 +193,7 @@ func VerticalMovment():
 func _physics_process(_delta):
 	Move()
 	VerticalMovment()
-	move_and_slide_with_snap(EnviermentContrlVector+ PlayerControledMVector + Vector3(0,YVelo,0),snap, Vector3.UP)
+	move_and_slide_with_snap(EnviermentContrlVector+ PlayerControledMVector + Vector3(0,YVelo,0),snap, Vector3.UP,false, 4, .785398, false)
 	var Menue = false
 	if Input.is_action_just_pressed("menue"):
 		if !Menue:
