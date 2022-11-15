@@ -162,7 +162,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 15.9675, 0.333249, -1.51491 )
 
 [node name="LaunchPad" parent="Node4" instance=ExtResource( 4 )]
 transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 16.8288, 1.99378, -1.23845 )
-maxspeed = 65
 direction = Vector3( -1, 0, 0 )
 
 [node name="LaunchPad3" parent="Node4" instance=ExtResource( 4 )]
@@ -170,7 +169,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -12.7224, 0.333249, -1.51491 )
 
 [node name="LaunchPad4" parent="Node4" instance=ExtResource( 4 )]
 transform = Transform( -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -13.815, 1.99378, -1.25607 )
-maxspeed = 60
 direction = Vector3( 1, 0, 0 )
 
 [node name="Enimes" type="Node" parent="."]

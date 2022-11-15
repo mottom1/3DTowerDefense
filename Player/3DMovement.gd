@@ -23,12 +23,14 @@ var wall:bool = false
 const JumpPower = 3
 const MaxJumpPower = 30
 var curentJumpPower = 0
-const gravity = 2
+const gravity = 1.6
 var YVelo = 2
 var YVeloCap = 80
 var Celing:bool = false
 var grounded:bool = false 
 var CanJump:bool = true
+var getsnap = Vector3(0,-5,0)
+var snap = Vector3(0,-5,0)
 # Shop Vars
 var Coins = 0
 #GunVars
@@ -43,41 +45,38 @@ func _input(event):
 		cambase.rotation_degrees.x -= event.relative.y * LookSensitivity
 		cambase.rotation_degrees.x = clamp(cambase.rotation_degrees.x, -CamClap, CamClap)
 		rotation_degrees.y -= event.relative.x * LookSensitivity
-#	if event is InputEventJoypadMotion:
-	cambase.rotation_degrees.y += (Input.get_action_strength("ScreenRotateL")- Input.get_action_strength("ScreenRotateR") )*LookSensitivity
-	cambase.rotation_degrees.x += (Input.get_action_strength("ScreenRotateUp")- Input.get_action_strength("ScreenRotateDown"))*LookSensitivity
-	cambase.rotation_degrees.x = clamp(cambase.rotation_degrees.x, -CamClap, CamClap)
+
 
 func Move():
 	
 	if Input.is_action_pressed("Forward"):
 		if grounded:
-			PlayerControledMVector.z += -MovmentSpeedUp-Friction
+			PlayerControledMVector += Vector3(0,0,-MovmentSpeedUp-Friction).rotated(Vector3(0,1,0), rotation.y)
 			
 
 		else:
-			PlayerControledMVector.z += -AirMovementSpeedUp
+			PlayerControledMVector += Vector3(0,0,-AirMovementSpeedUp).rotated(Vector3(0,1,0), rotation.y)
 	else: pass
 
 	if Input.is_action_pressed("Backwards"):
 		if grounded:
-			PlayerControledMVector.z +=MovmentSpeedUp+Friction
+			PlayerControledMVector +=Vector3(0,0,MovmentSpeedUp+Friction).rotated(Vector3(0,1,0), rotation.y)
 		else:
-			PlayerControledMVector.z += +AirMovementSpeedUp
+			PlayerControledMVector += Vector3(0,0,AirMovementSpeedUp).rotated(Vector3(0,1,0), rotation.y)
 	else: pass
 
 	if Input.is_action_pressed("Right"):
 		if grounded:
-			PlayerControledMVector.x += MovmentSpeedUp+Friction
+			PlayerControledMVector += Vector3(MovmentSpeedUp+Friction,0,0).rotated(Vector3(0,1,0), rotation.y)
 		else:
-			PlayerControledMVector.x += +AirMovementSpeedUp
+			PlayerControledMVector += Vector3(AirMovementSpeedUp,0,0).rotated(Vector3(0,1,0), rotation.y)
 	else: pass
 
 	if Input.is_action_pressed("Left"):
 		if grounded:
-			PlayerControledMVector.x += -MovmentSpeedUp-Friction
+			PlayerControledMVector += Vector3(-MovmentSpeedUp-Friction,0,0).rotated(Vector3(0,1,0), rotation.y)
 		else:
-			PlayerControledMVector.x += -AirMovementSpeedUp
+			PlayerControledMVector += Vector3(-AirMovementSpeedUp,0,0).rotated(Vector3(0,1,0), rotation.y)
 	else: pass
 	
 	
@@ -149,8 +148,6 @@ func Move():
 			EnviermentContrlVector.x -=Friction
 			if EnviermentContrlVector.x < 0:
 				EnviermentContrlVector.x = 0
-
-
 	if EnviermentContrlVector.y != 0:
 		if EnviermentContrlVector.y < 0:
 			EnviermentContrlVector.y +=gravity
@@ -177,7 +174,10 @@ func VerticalMovment():
 	if YVelo <-YVeloCap:
 		YVelo = -YVeloCap
 	
+	snap.y = move_toward(snap.y, getsnap.y, .5)
+	
 	if Input.is_action_pressed("Jump") and CanJump:
+		snap = Vector3.ZERO
 		YVelo += JumpPower +gravity
 
 
@@ -193,7 +193,7 @@ func VerticalMovment():
 func _physics_process(_delta):
 	Move()
 	VerticalMovment()
-	move_and_slide(EnviermentContrlVector+ PlayerControledMVector.rotated(Vector3(0,1,0), rotation.y) + Vector3(0,YVelo,0), Vector3.UP)
+	move_and_slide_with_snap(EnviermentContrlVector+ PlayerControledMVector + Vector3(0,YVelo,0),snap, Vector3.UP)
 	var Menue = false
 	if Input.is_action_just_pressed("menue"):
 		if !Menue:
@@ -206,4 +206,4 @@ func _physics_process(_delta):
 	Celing = is_on_ceiling()
 	grounded = is_on_floor()
 	wall = is_on_wall()
-	
+

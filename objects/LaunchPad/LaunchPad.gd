@@ -18,4 +18,5 @@ func _on_LaunchPad_body_entered(body):
 func LaunchPlayer():
 	Player.EnviermentContrlVector += direction*speed
 	Player.YVelo = 0
+	Player.snap = Vector3.ZERO
 	print(str(Player.EnviermentContrlVector))
